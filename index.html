@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Lost & Found Management Portal</title>
+  <style>
+    body {
+          font-family: Arial, sans-serif;
+          background: url('seu.webp') no-repeat center center fixed;
+          background-size: cover;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+        }
+
+          .container {
+            background: rgba(255, 255, 255, 0.9);
+            width: 400px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #444;
+    }
+    input, textarea, select {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border 0.3s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border: 1px solid #007bff;
+      outline: none;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin: 10px 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .back-btn {
+      background: #6c757d;
+    }
+    .back-btn:hover {
+      background: #545b62;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    ul li {
+      background: #f1f1f1;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: left;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    ul li:hover {
+      background: #e2e6ea;
+    }
+    .hidden {
+      display: none;
+    }
+    .item-image {
+      max-width: 100%;
+      max-height: 200px;
+      margin: 10px 0;
+      border-radius: 6px;
+    }
+    .report-item {
+      text-align: left;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    .report-item img {
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: 4px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    .status-lost {
+      background-color: #ffcccc;
+      color: #d63031;
+    }
+    .status-found {
+      background-color: #ccffcc;
+      color: #27ae60;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.95);}
+      to {opacity: 1; transform: scale(1);}
+    }
+  </style>
+</head>
+<body>
+
+
+  <div class="container" id="startPage">
+    <h2>Welcome to Lost & Found Portal</h2>
+    <button onclick="showLogin()">Login / Register</button>
+  </div>
+
+
+<div class="container hidden" id="loginPage">
+  <h2>Login / Register</h2>
+  
+  <input 
+    type="text" 
+    id="studentId" 
+    name="studentId" 
+    placeholder="Enter 13-digit Student ID" 
+    pattern="\d{13}" 
+    maxlength="13" 
+    required>
+
+  <input 
+    type="password" 
+    id="password" 
+    name="password" 
+    placeholder="Enter Password" 
+    required>
+
+  <button onclick="login()">Login</button>
+  <button class="back-btn" onclick="goBack('login')">Back</button>
+</div>
+
+
+  <div class="container hidden" id="choosePage">
+    <h2>What do you want to do?</h2>
+    <button onclick="openDashboard('LOST')">Report LOST</button>
+    <button onclick="openDashboard('FOUND')">Report FOUND</button>
+    <br>
+    <button class="back-btn" onclick="goBack('choose')">Back</button>
+  </div>
+
+
+  <div class="container hidden" id="dashboardPage">
+    <h2>Dashboard</h2>
+    <p id="dashboardText"></p>
+    <div class="dashboard">
+      <ul>
+        <li onclick="showReportItem()">➤ Report Item</li>
+        <li onclick="showViewReports()">➤ View Reports</li>
+        <li onclick="showSearchItems()">➤ Search Items</li>
+        <li onclick="showProfile()">➤ Profile</li>
+      </ul>
+    </div>
+    <button class="back-btn" onclick="goBack('dashboard')">Back</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+
+  <div class="container hidden" id="reportItemPage">
+    <h2>Report Item</h2>
+    <input type="text" id="itemName" placeholder="Item Name">
+    <textarea id="itemDescription" placeholder="Item Description"></textarea>
+    <input type="text" id="itemLocation" placeholder="Location (where lost/found)">
+    <input type="date" id="itemDate">
+    <select id="itemCategory">
+      <option value="">Select Category</option>
+      <option value="electronics">Electronics</option>
+      <option value="clothing">Clothing</option>
+      <option value="documents">Documents</option>
+      <option value="accessories">Accessories</option>
+      <option value="other">Other</option>
+    </select>
+    <input type="file" id="itemImage" accept="image/*">
+    <button onclick="submitItem()">Submit Report</button>
+    <button class="back-btn" onclick="goBack('reportItem')">Back</button>
+  </div>
+
+
+  <div class="container hidden" id="viewReportsPage">
+    <h2 id="viewReportsTitle">Your Reports</h2>
+    <div id="reportsList"></div>
+    <button class="back-btn" onclick="goBack('viewReports')">Back</button>
+  </div>
+
+
+  <div class="container hidden" id="searchItemsPage">
+    <h2>Search Items</h2>
+    <input type="text" id="searchQuery" placeholder="Search by name, category, or location">
+    <button onclick="searchItems()">Search</button>
+    <div id="searchResults"></div>
+    <button class="back-btn" onclick="goBack('searchItems')">Back</button>
+  </div>
+
+  <div class="container hidden" id="profilePage">
+    <h2>Your Profile</h2>
+    <p>Username: <span id="profileUsername"></span></p>
+    <p>Total Reports: <span id="totalReports"></span></p>
+    <button class="back-btn" onclick="goBack('profile')">Back</button>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let currentItemType = '';
+    let items = JSON.parse(localStorage.getItem('lostFoundItems')) || [];
+    let users = JSON.parse(localStorage.getItem('lostFoundUsers')) || [];
+
+
+    if (users.length === 0) {
+      users.push({ username: 'demo', password: 'demo', reports: 0 });
+      localStorage.setItem('lostFoundUsers', JSON.stringify(users));
+      
+    
+      if (items.length === 0) {
+        items.push({
+          id: 1,
+          name: "Black Wallet",
+          description: "Black leather wallet with cards inside",
+          location: "Main Building, 2nd floor",
+          date: "2023-10-15",
+          category: "accessories",
+          type: "LOST",
+          reportedBy: "demo",
+          image: null,
+          status: "lost",
+          dateReported: "2023-10-16T10:30:00Z"
+        });
+        
+        items.push({
+          id: 2,
+          name: "iPhone 12",
+          description: "Black iPhone 12 with blue case",
+          location: "Cafeteria",
+          date: "2023-10-20",
+          category: "electronics",
+          type: "FOUND",
+          reportedBy: "demo",
+          image: null,
+          status: "found",
+          dateReported: "2023-10-20T14:45:00Z"
+        });
+        
+        localStorage.setItem('lostFoundItems', JSON.stringify(items));
+      }
+    }
+
+    function showLogin() {
+      document.getElementById('startPage').classList.add('hidden');
+      document.getElementById('loginPage').classList.remove('hidden');
+    }
+
+    function login() {
+  let studentId = document.getElementById('studentId').value.trim();
+  let password = document.getElementById('password').value.trim();
+
+
+  let idPattern = /^\d{13}$/;
+  if (!idPattern.test(studentId)) {
+    alert("Student ID must be exactly 13 digits!");
+    return;
+  }
+
+  if (studentId && password) {
+    const user = users.find(u => u.studentId === studentId && u.password === password);
+
+    if (user) {
+      currentUser = studentId;
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('choosePage').classList.remove('hidden');
+    } else {
+  
+      users.push({ studentId, password, reports: 0 });
+      localStorage.setItem('lostFoundUsers', JSON.stringify(users));
+      currentUser = studentId;
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('choosePage').classList.remove('hidden');
+    }
+  } else {
+    alert("Please enter Student ID and password!");
+  }
+}
+
+
+    function openDashboard(type) {
+      currentItemType = type;
+      document.getElementById('choosePage').classList.add('hidden');
+      document.getElementById('dashboardPage').classList.remove('hidden');
+      document.getElementById('dashboardText').innerText = "You selected: " + type;
+    }
+
+    function showReportItem() {
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('reportItemPage').classList.remove('hidden');
+    }
+
+    function showViewReports() {
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('viewReportsPage').classList.remove('hidden');
+      
+    
+      document.getElementById('viewReportsTitle').innerText = 
+        `Your ${currentItemType} Reports`;
+      
+      displayUserReports();
+    }
+
+    function showSearchItems() {
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('searchItemsPage').classList.remove('hidden');
+    }
+
+    function showProfile() {
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('profilePage').classList.remove('hidden');
+      
+    
+      const user = users.find(u => u.username === currentUser);
+      document.getElementById('profileUsername').textContent = currentUser;
+      document.getElementById('totalReports').textContent = user.reports || 0;
+    }
+
+    function submitItem() {
+      const name = document.getElementById('itemName').value;
+      const description = document.getElementById('itemDescription').value;
+      const location = document.getElementById('itemLocation').value;
+      const date = document.getElementById('itemDate').value;
+      const category = document.getElementById('itemCategory').value;
+      const imageFile = document.getElementById('itemImage').files[0];
+      
+      if (!name || !description || !location || !date || !category) {
+        alert("Please fill all required fields!");
+        return;
+      }
+      
+  
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          saveItem(e.target.result);
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        saveItem(null);
+      }
+    }
+    
+    function saveItem(imageData) {
+      const name = document.getElementById('itemName').value;
+      const description = document.getElementById('itemDescription').value;
+      const location = document.getElementById('itemLocation').value;
+      const date = document.getElementById('itemDate').value;
+      const category = document.getElementById('itemCategory').value;
+      
+      const newItem = {
+        id: Date.now(),
+        name,
+        description,
+        location,
+        date,
+        category,
+        type: currentItemType,
+        reportedBy: currentUser,
+        image: imageData,
+        status: currentItemType.toLowerCase(),
+        dateReported: new Date().toISOString()
+      };
+      
+      items.push(newItem);
+      localStorage.setItem('lostFoundItems', JSON.stringify(items));
+      
+    
+      const userIndex = users.findIndex(u => u.username === currentUser);
+      if (userIndex !== -1) {
+        users[userIndex].reports = (users[userIndex].reports || 0) + 1;
+        localStorage.setItem('lostFoundUsers', JSON.stringify(users));
+      }
+      
+      alert("Item reported successfully!");
+      
+    
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemDescription').value = '';
+      document.getElementById('itemLocation').value = '';
+      document.getElementById('itemDate').value = '';
+      document.getElementById('itemCategory').value = '';
+      document.getElementById('itemImage').value = '';
+      
+      goBack('reportItem');
+    }
+
+    function displayUserReports() {
+      const reportsList = document.getElementById('reportsList');
+      reportsList.innerHTML = '';
+      
+    
+      const userReports = items.filter(item => 
+        item.reportedBy === currentUser && item.type === currentItemType
+      );
+      
+      if (userReports.length === 0) {
+        reportsList.innerHTML = `<p>You have not reported any ${currentItemType.toLowerCase()} items yet.</p>`;
+        return;
+      }
+      
+      userReports.forEach(item => {
+        const reportDiv = document.createElement('div');
+        reportDiv.className = 'report-item';
+        
+        const statusClass = item.type === 'LOST' ? 'status-lost' : 'status-found';
+        
+        reportDiv.innerHTML = `
+          <h3>${item.name} <span class="status-badge ${statusClass}">${item.type}</span></h3>
+          <p>${item.description}</p>
+          <p><strong>Location:</strong> ${item.location}</p>
+          <p><strong>Date:</strong> ${new Date(item.date).toLocaleDateString()}</p>
+          <p><strong>Category:</strong> ${item.category}</p>
+          <p><strong>Reported on:</strong> ${new Date(item.dateReported).toLocaleDateString()}</p>
+          ${item.image ? `<img src="${item.image}" alt="${item.name}" class="item-image">` : ''}
+        `;
+        reportsList.appendChild(reportDiv);
+      });
+    }
+
+    function searchItems() {
+      const query = document.getElementById('searchQuery').value.toLowerCase();
+      const resultsDiv = document.getElementById('searchResults');
+      resultsDiv.innerHTML = '';
+      
+      if (!query) {
+        resultsDiv.innerHTML = '<p>Please enter a search term.</p>';
+        return;
+      }
+      
+      const searchResults = items.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query) ||
+        item.location.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query)
+      );
+      
+      if (searchResults.length === 0) {
+        resultsDiv.innerHTML = '<p>No items found matching your search.</p>';
+        return;
+      }
+      
+      searchResults.forEach(item => {
+        const statusClass = item.type === 'LOST' ? 'status-lost' : 'status-found';
+        
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'report-item';
+        resultDiv.innerHTML = `
+          <h3>${item.name} <span class="status-badge ${statusClass}">${item.type}</span></h3>
+          <p>${item.description}</p>
+          <p><strong>Location:</strong> ${item.location}</p>
+          <p><strong>Date:</strong> ${new Date(item.date).toLocaleDateString()}</p>
+          <p><strong>Category:</strong> ${item.category}</p>
+          <p><strong>Reported by:</strong> ${item.reportedBy}</p>
+          ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+        `;
+        resultsDiv.appendChild(resultDiv);
+      });
+    }
+
+    function logout() {
+      currentUser = null;
+      currentItemType = '';
+      document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+      document.getElementById('startPage').classList.remove('hidden');
+    }
+
+    function goBack(page) {
+      if (page === 'login') {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('startPage').classList.remove('hidden');
+      } else if (page === 'choose') {
+        document.getElementById('choosePage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+      } else if (page === 'dashboard') {
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('choosePage').classList.remove('hidden');
+      } else if (page === 'reportItem' || page === 'viewReports' || 
+                 page === 'searchItems' || page === 'profile') {
+        document.getElementById(page + 'Page').classList.add('hidden');
+        document.getElementById('dashboardPage').classList.remove('hidden');
+      }
+    }
+  </script>
+
+</body>
+</html>
